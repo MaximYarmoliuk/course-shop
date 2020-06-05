@@ -19,6 +19,7 @@
                 <a href="/courses/{{id}}/edit?allow=true">Update</a>
                 <form action="/card/add" method="POST">
                     <input type="hidden" name="id" value="{{id}}">
+                    <input type="hidden" name="_csrf" value="{{@root.csrf}}">
                     <button type="submit" class='btn btn-primery'>Buy</button>
                 </form>
                 {{/if}}
