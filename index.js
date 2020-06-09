@@ -26,6 +26,7 @@ const hbs = exphbs.create({
   defaultLayout: "main",
   extname: "hbs",
   handlebars: allowInsecurePrototypeAccess(Handlebars),
+  helpers: require("./utils/hbs-helpers"),
 });
 
 const store = new MongoStore({
@@ -41,7 +42,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(express.urlencoded({ extended: true }));
 app.use(
   session({
-    secret: "some value",
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     store,
