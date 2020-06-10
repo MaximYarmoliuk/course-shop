@@ -1,10 +1,12 @@
 const { Router } = require("express");
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
+const { validationResult } = require("express-validator/check");
 const sgMail = require("@sendgrid/mail");
 const User = require("../models/user");
 const registrationEmail = require("../emails/registration");
 const resetEmail = require("../emails/reset");
+const { registerValidators, loginValidators } = require("../utils/validators");
 const router = Router();
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
@@ -50,9 +52,15 @@ router.get("/password/:token", async (req, res, next) => {
   }
 });
 
-router.post("/login", async (req, res, next) => {
+router.post("/login", loginValidators, async (req, res, next) => {
   try {
     const { email, password } = req.body;
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      req.flash("loginError", errors.array()[0].msg);
+      return res.status(422).redirect("/auth/login#login");
+    }
 
     const candidate = await User.findOne({ email });
 
@@ -81,30 +89,29 @@ router.post("/login", async (req, res, next) => {
   }
 });
 
-router.post("/register", async (req, res, next) => {
+router.post("/register", registerValidators, async (req, res, next) => {
   try {
-    const { email, password, name, repeat } = req.body;
+    const { email, password, name } = req.body;
 
-    const candidate = await User.findOne({ email });
-
-    if (candidate) {
-      req.flash("registerError", "Email is already in use");
-      res.redirect("/auth/login#register");
-    } else {
-      const hashPassword = await bcrypt.hash(password, 10);
-      const user = new User({
-        email,
-        name,
-        password: hashPassword,
-        cart: {
-          items: [],
-        },
-      });
-      await user.save();
-      // sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-      await sgMail.send(registrationEmail(email));
-      res.redirect("/auth/login#login");
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      req.flash("registerError", errors.array()[0].msg);
+      return res.status(422).redirect("/auth/login#register");
     }
+
+    const hashPassword = await bcrypt.hash(password, 10);
+    const user = new User({
+      email,
+      name,
+      password: hashPassword,
+      cart: {
+        items: [],
+      },
+    });
+    await user.save();
+    // sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+    await sgMail.send(registrationEmail(email));
+    res.redirect("/auth/login#login");
   } catch (error) {
     console.log(error);
   }

@@ -13,7 +13,7 @@
             {{/if}}
 
             <h1>Enter the store</h1>
-            <form action="/auth/login" method="POST">
+            <form action="/auth/login" method="POST" novalidate>
                 <div class="input-field">
                     <input name="email" id="email" type="email" class="validate" required>
                     <label for="email">Email</label>
@@ -40,7 +40,7 @@
             {{/if}}
 
             <h1>Create an account</h1>
-            <form action="/auth/register" method="POST">
+            <form action="/auth/register" method="POST" novalidate>
                 <div class="input-field">
                     <input name="email" id="r-email" type="email" class="validate" required>
                     <label for="r-email">Email</label>
@@ -60,8 +60,8 @@
                 </div>
 
                 <div class="input-field">
-                    <input name="confirm-password" id="confirm-password" type="password" class="validate" required>
-                    <label for="confirm-password">Confirm password</label>
+                    <input name="confirm" id="confirm" type="password" class="validate" required>
+                    <label for="confirm">Confirm password</label>
                     <span class="helper-text" data-error="Uncorect password"></span>
                 </div>
 
